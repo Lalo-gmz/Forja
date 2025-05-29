@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Hábitos</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --ios-blue: #000000;
+            --ios-blue-dark: #0051D2;
+            --ios-green: #34C759;
+            --ios-orange: #FF9500;
+            --ios-red: #FF3B30;
+            --ios-purple: #AF52DE;
+            --ios-gray: #8E8E93;
+            --ios-gray-light: #F2F2F7;
+            --ios-gray-medium: #E5E5EA;
+            --ios-gray-dark: #48484A;
+            --ios-background: #ffffff;
+            --ios-card: #ffffff;
+            --ios-separator: #eaeaea;
+            --text-primary: #111418; /* Updated */
+            --text-secondary: #637588; /* Updated */
+            --progress-bg: #dce0e5; /* New */
+            --progress-fill: #111418; /* New */
+            --safe-area-top: env(safe-area-inset-top, 0);
+            --safe-area-bottom: env(safe-area-inset-bottom, 0);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Manrope, "Noto Sans", sans-serif; /* Updated */
+            background-color: var(--ios-background);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 428px;
+            margin: 0 auto;
+            background: var(--ios-background);
+            position: relative;
+        }
+
+        /* iOS Navigation Bar */
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 0.5px solid var(--ios-separator);
+            padding: var(--safe-area-top) 20px 0 20px;
+            height: calc(60px + var(--safe-area-top));
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between; /* Updated */
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding-bottom: 8px;
+            flex-grow: 1; /* Added */
+            text-align: center; /* Added */
+            padding-left: 48px; /* Adjusted for button space */
+        }
+
+        .nav-level {
+            position: absolute; /* Removed from nav-bar, now handled in progress section */
+            display: none; /* Hide it from here */
+        }
+
+        .nav-button-right { /* New class for right button in nav bar */
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 48px; /* Fixed width for consistent spacing */
+        }
+
+        .nav-button-right button {
+            background: transparent;
+            border: none;
+            color: var(--ios-blue);
+            font-size: 24px; /* Plus icon size */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button-right button:active {
+            transform: scale(0.9);
+            opacity: 0.7;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px;
+            padding-bottom: calc(90px + var(--safe-area-bottom));
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* iOS Cards */
+        .ios-card {
+            background: var(--ios-card);
+            border-radius: 12px;
+            margin: 0px 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 0px 8px 0px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .card-content {
+            padding: 16px 20px;
+        }
+
+        /* Habit List */
+        .habit-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 0.5px solid var(--ios-separator);
+            min-height: 60px;
+            transition: background-color 0.2s ease;
+        }
+
+        .habit-item:last-child {
+            border-bottom: none;
+        }
+
+        .habit-item.completed {
+            background: rgba(52, 199, 89, 0.05);
+        }
+
+        .habit-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--ios-gray);
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .habit-check.completed {
+            background: var(--ios-green);
+            border-color: var(--ios-green);
+            color: white;
+        }
+
+        /* New style for emoji display in main habit list */
+        .habit-list-emoji {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px; /* Adjust font size for emoji */
+            border-radius: 8px; /* Slightly rounded corners */
+            background-color: var(--ios-gray-light); /* Light background */
+            margin-right: 12px; /* Space between emoji and habit info */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+        }
+
+        .habit-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .habit-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .habit-name.completed {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+
+        .habit-streak {
+            font-size: 13px;
+            color: var(--ios-orange);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .habit-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .delete-button {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--ios-red);
+        }
+
+        .delete-button:active {
+            transform: scale(0.9);
+            background: rgba(255, 59, 48, 0.2);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .stat-item {
+            background: var(--ios-card);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ios-blue);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Badges */
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        .badge {
+            width: 60px;
+            height: 60px;
+            background: var(--ios-card);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .badge:active {
+            transform: scale(0.95);
+        }
+
+        /* Progress Ring */
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: var(--ios-gray-medium);
+            stroke-width: 8;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: var(--ios-blue);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ios-blue);
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* iOS Tab Bar */
+        .tab-bar {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: saturate(180%) blur(20px);
+            border-top: 0.5px solid var(--ios-separator);
+            padding: 8px 0 calc(8px + var(--safe-area-bottom));
+            display: flex;
+            justify-content: space-around;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 428px;
+            z-index: 100;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 60px;
+        }
+
+        .tab-icon {
+            font-size: 22px;
+            color: var(--ios-gray);
+            margin-bottom: 2px;
+            transition: color 0.2s ease;
+        }
+
+        .tab-label {
+            font-size: 10px;
+            color: var(--ios-gray);
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .tab-item.active .tab-icon,
+        .tab-item.active .tab-label {
+            color: var(--ios-blue);
+        }
+
+        /* Info Section */
+        .info-section {
+            background: linear-gradient(135deg, var(--ios-blue), var(--ios-purple));
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 16px 0;
+        }
+
+        .info-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .info-text {
+            font-size: 14px;
+            line-height: 1.4;
+            opacity: 0.9;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: calc(60px + var(--safe-area-bottom) + 16px); /* Adjusted position */
+            left: 50%;
+            transform: translateX(-50%) translateY(50px); /* Start off-screen */
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0); /* Move to desired position */
+        }
+
+        /* Modal Overlays */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: flex-end; /* Align to bottom for slide-up */
+            justify-content: center;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Generic Modal (for delete confirmation) */
+        .modal {
+            background: var(--ios-card);
+            border-radius: 16px;
+            margin: 20px;
+            max-width: 300px;
+            width: 100%;
+            overflow: hidden;
+            transform: translateY(100%); /* Start off-screen for slide-up */
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: translateY(0); /* Slide up */
+        }
+
+        /* Add Habit Modal Specific Styles */
+        .add-habit-modal-overlay { /* New class for add habit modal overlay */
+            z-index: 1002; /* Higher z-index to cover tab bar */
+            align-items: flex-start; /* Align to top for full screen */
+            padding-top: var(--safe-area-top); /* Respect safe area */
+            background: var(--ios-background); /* Full screen background */
+        }
+
+        .add-habit-modal {
+            border-radius: 0; /* No rounded corners for full screen */
+            margin: 0; /* No margin for full screen */
+            max-width: 100%; /* Take full width */
+            width: 100%; /* Ensure full width */
+            height: 100vh; /* Full screen height */
+            transform: translateY(100%); /* Start off-screen for slide-up */
+            transition: transform 0.3s ease;
+            display: flex; /* Flex container for header and content */
+            flex-direction: column;
+            background: var(--ios-background); /* Match background */
+        }
+
+        .add-habit-modal-overlay.show .add-habit-modal {
+            transform: translateY(0); /* Slide up */
+        }
+
+        .add-habit-modal .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 0.5px solid var(--ios-separator);
+            background: rgba(255, 255, 255); /* Match nav bar background */
+            backdrop-filter: saturate(180%) blur(20px);
+            position: sticky; /* Sticky header */
+            top: 0;
+            z-index: 10;
+        }
+
+        .add-habit-modal .modal-title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-button-header {
+            background: transparent;
+            border: none;
+            color: var(--ios-blue);
+            font-size: 17px;
+            font-weight: 400; /* Regular weight for Cancel */
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-radius: 8px;
+        }
+
+        .modal-button-header.primary {
+            font-weight: 600; /* Bold for Save */
+        }
+
+        .modal-button-header:disabled {
+            color: var(--ios-gray);
+            cursor: not-allowed;
+        }
+
+        .modal-button-header:active:not(:disabled) {
+            background: var(--ios-gray-light);
+        }
+
+        .add-habit-modal .modal-content {
+            flex: 1; /* Take remaining space */
+            overflow-y: auto; /* Enable scrolling for content */
+            padding: 20px;
+            background: var(--ios-background); /* Match background */
+        }
+
+        .add-habit-modal .ios-input {
+            width: 100%;
+            background: var(--ios-card); /* White background for input */
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 16px;
+            color: var(--text-primary);
+            outline: none;
+            border: 0.5px solid var(--ios-separator); /* Subtle border */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+        }
+
+        .add-habit-modal .ios-input:focus {
+            border-color: var(--ios-blue);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        }
+
+
+        /* Original delete modal styles */
+        .modal .modal-header {
+            padding: 20px 20px 8px 20px;
+            text-align: center;
+        }
+
+        .modal .modal-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-message {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-align: center;
+            padding: 0 20px 20px 20px;
+        }
+
+        .modal-actions {
+            border-top: 0.5px solid var(--ios-separator);
+            display: flex;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: transparent;
+        }
+
+        .modal-button:first-child {
+            border-right: 0.5px solid var(--ios-separator);
+            color: var(--ios-red);
+        }
+
+        .modal-button:last-child {
+            color: var(--ios-blue);
+            font-weight: 600;
+        }
+
+        .modal-button:active {
+            background: var(--ios-gray-light);
+        }
+
+        /* Floating Action Animation */
+        .floating-points {
+            position: absolute;
+            background: var(--ios-green);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: floatUp 1.5s ease-out forwards;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(0, -40px) scale(0.8);
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-message {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Floating Action Button (Removed, but keeping class for reference if needed) */
+        .fab {
+            display: none; /* Hidden now */
+        }
+
+        /* Daily Summary Card */
+        .daily-summary-card .card-content {
+            display: flex;
+            flex-direction: column; /* Changed to column */
+            gap: 16px; /* Added gap */
+            padding: 20px;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--ios-green);
+            display: block;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* New Progress Section in Home Tab */
+        .home-progress-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px 0px; /* Consistent padding */
+            background: var(--ios-card); /* Card background */
+            border-radius: 12px; /* Card border radius */
+            margin: 16px 0; /* Consistent margin */
+        }
+
+        .home-progress-section .level-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .home-progress-section .progress-bar-container {
+            background: var(--progress-bg);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .home-progress-section .progress-bar-fill {
+            background: var(--progress-fill);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .home-progress-section .progress-text-small {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* New style for habit items with images */
+        .habit-item-with-image {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 20px;
+            border-bottom: 0.5px solid var(--ios-separator);
+            min-height: 80px; /* Adjust height for image */
+        }
+
+        .habit-item-with-image:last-child {
+            border-bottom: none;
+        }
+
+        .habit-item-with-image .habit-text-content {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        /* New style for emoji display in habit item */
+        .habit-emoji-display {
+            flex: 1;
+            width: 100%;
+            background-color: var(--ios-gray-light);
+            border-radius: 8px;
+            aspect-ratio: 1 / 1;
+            min-width: 60px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px; /* Larger size for emoji */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* New style for achievement items with images */
+        .achievement-grid {
+            display: flex;
+            overflow-x: auto; /* Enable horizontal scrolling */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            padding: 16px 0; /* Padding for scrollable area */
+            gap: 12px; /* Gap between items */
+            -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+
+        .achievement-grid::-webkit-scrollbar { /* Hide scrollbar for Chrome/Safari */
+            display: none;
+        }
+
+        .achievement-item {
+            flex: 0 0 auto; /* Do not grow, do not shrink, base on content */
+            width: 120px; /* Fixed width for each achievement item */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: center;
+        }
+
+        /* New style for emoji display in achievement item */
+        .achievement-emoji-display {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: var(--ios-gray-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px; /* Larger size for achievement emoji */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .achievement-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        /* Emoji Selection in Modal */
+        .emoji-selection-container {
+            margin-top: 20px;
+            background: var(--ios-card);
+            border-radius: 10px;
+            padding: 16px;
+            border: 0.5px solid var(--ios-separator);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+            justify-items: center;
+            margin-top: 10px;
+        }
+        .emoji-item {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: var(--ios-gray-light);
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .emoji-item.selected {
+            border-color: var(--ios-blue);
+            background-color: var(--ios-blue);
+            color: white;
+            transform: scale(1.1);
+        }
+        .emoji-item:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="nav-bar">
+            <div class="flex w-12 items-center justify-start"></div> 
+            <div class="nav-title" id="navTitle">Hábitos</div>
+            <div class="nav-button-right">
+                <button id="addHabitBtnInNav">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="tab-home" class="tab-content active">
+                <div class="info-section">
+                    <div class="info-title">💪 Forja tus hábitos</div>
+                    <div class="info-text">Los pequeños cambios diarios crean grandes transformaciones. Cada hábito completado te acerca más a tus objetivos.</div>
+                </div>
+
+                <div class="ios-card daily-summary-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-calendar-day"></i>
+                            Tu Día de Hoy
+                        </div>
+                        <div class="card-subtitle">Un vistazo rápido a tu progreso diario</div>
+                    </div>
+                    <div class="card-content daily-summary-content">
+                        <div class="summary-item">
+                            <span class="summary-value" id="todayCompletedHabits">0</span>
+                            <span class="summary-label">Completados</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-value" id="todayTotalHabits">0</span>
+                            <span class="summary-label">Total</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="home-progress-section">
+                    <div class="level-info">
+                        <span id="homeCurrentLevel">Nivel Aprendiz</span>
+                        <span id="homeTotalPoints">0 puntos</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="homeProgressBar" style="width: 0%;"></div>
+                    </div>
+                    <p class="progress-text-small" id="homeNextLevelProgress">0/100 puntos para el siguiente nivel</p>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-list-check"></i>
+                            Hábitos Recientes
+                        </div>
+                        <div class="card-subtitle">Tus 2 hábitos más recientes</div>
+                    </div>
+                    <div id="homeHabitsList">
+                        <div class="empty-state">
+                            <div class="empty-icon">📝</div>
+                            <div class="empty-title">Sin hábitos aún</div>
+                            <div class="empty-message">Añade tu primer hábito para comenzar tu transformación</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-trophy"></i>
+                            Logros Recientes
+                        </div>
+                        <div class="card-subtitle">Tus últimas insignias</div>
+                    </div>
+                    <div class="card-content">
+                        <div id="homeBadgesContainer" class="achievement-grid">
+                            <div class="empty-state" style="width: 100%;">
+                                <div class="empty-icon">🏆</div>
+                                <div class="empty-title">Sin logros aún</div>
+                                <div class="empty-message">Completa hábitos para desbloquear insignias</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-habits" class="tab-content">
+                <div class="ios-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-list-check"></i>
+                            Mis Hábitos
+                        </div>
+                        <div class="card-subtitle">Toca para marcar como completado</div>
+                    </div>
+                    <div id="habitsList">
+                        <div class="empty-state">
+                            <div class="empty-icon">📝</div>
+                            <div class="empty-title">Sin hábitos aún</div>
+                            <div class="empty-message">Añade tu primer hábito para comenzar tu transformación</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-progress" class="tab-content">
+                <div class="ios-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-line"></i>
+                            Tu Progreso
+                        </div>
+                        <div class="card-subtitle">Seguimiento de tu evolución diaria</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="progress-ring">
+                            <svg width="120" height="120">
+                                <circle class="progress-ring-bg" cx="60" cy="60" r="52"/>
+                                <circle id="progressRingFill" class="progress-ring-fill" cx="60" cy="60" r="52" 
+                                        stroke-dasharray="0 327" stroke-dashoffset="0"/>
+                            </svg>
+                            <div class="progress-text">
+                                <div class="progress-number" id="completionPercentage">0%</div>
+                                <div class="progress-label">Completado hoy</div>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-value" id="totalPoints">0</span>
+                                <div class="stat-label">Puntos</div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="longestStreak">0</span>
+                                <div class="stat-label">Mejor racha</div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="completedToday">0</span>
+                                <div class="stat-label">Hoy</div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="totalCompletions">0</span>
+                                <div class="stat-label">Total</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-trophy"></i>
+                            Logros
+                        </div>
+                        <div class="card-subtitle">Insignias que has ganado</div>
+                    </div>
+                    <div class="card-content">
+                        <div id="badgesContainer" class="badges-container">
+                            <div class="empty-state">
+                                <div class="empty-icon">🏆</div>
+                                <div class="empty-title">Sin logros aún</div>
+                                <div class="empty-message">Completa hábitos para desbloquear insignias</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-stats" class="tab-content">
+                <div class="ios-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Estadísticas
+                        </div>
+                        <div class="card-subtitle">Análisis detallado de tu progreso</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-value" id="activeDays">0</span>
+                                <div class="stat-label">Días activos</div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="currentLevel">1</span>
+                                <div class="stat-label">Nivel actual</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">
+                                Hábito más consistente
+                            </div>
+                            <div id="mostConsistentHabit" style="font-size: 14px; color: var(--text-secondary);">
+                                Ninguno aún
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-bar">
+            <div class="tab-item active" data-tab="home">
+                <div class="tab-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="tab-label">Inicio</div>
+            </div>
+            <div class="tab-item" data-tab="habits">
+                <div class="tab-icon">
+                    <i class="fas fa-list-check"></i>
+                </div>
+                <div class="tab-label">Hábitos</div>
+            </div>
+            <div class="tab-item" data-tab="progress">
+                <div class="tab-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="tab-label">Progreso</div>
+            </div>
+            <div class="tab-item" data-tab="stats">
+                <div class="tab-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="tab-label">Stats</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addHabitModalOverlay" class="modal-overlay add-habit-modal-overlay">
+        <div class="modal add-habit-modal">
+            <div class="modal-header">
+                <button class="modal-button-header" id="addHabitModalCancel">Cancelar</button>
+                <div class="modal-title">Nuevo Hábito</div>
+                <button class="modal-button-header primary" id="addHabitModalSave" disabled>Guardar</button>
+            </div>
+            <div class="modal-content">
+                <input type="text" id="addHabitModalInput" class="ios-input" placeholder="Nombre del hábito">
+                <div class="emoji-selection-container">
+                    <label for="habitEmoji" class="text-sm font-semibold text-gray-700 mb-2 block">Elige un emoji:</label>
+                    <div id="emojiGrid" class="emoji-grid">
+                        </div>
+                    <input type="hidden" id="selectedEmoji" value="✨"> </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Eliminar hábito</div>
+            </div>
+            <div class="modal-message" id="modalMessage">
+                ¿Estás seguro de que quieres eliminar este hábito?
+            </div>
+            <div class="modal-actions">
+                <button class="modal-button" id="modalCancel">Cancelar</button>
+                <button class="modal-button" id="modalConfirm">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        class HabitsApp {
+            constructor() {
+                // Array para almacenar los hábitos. Cada hábito es un objeto.
+                this.habits = [];
+                // Objeto para almacenar las estadísticas del usuario.
+                this.userStats = {
+                    totalPoints: 0,
+                    longestStreakOverall: 0,
+                    currentLevel: 1,
+                    earnedBadges: [],
+                    totalCompletionsHistorical: 0,
+                    // activeDays almacena la fecha de cada día activo para calcular la racha
+                    activeDays: {} 
+                };
+                
+                // Puntos ganados por cada hábito completado.
+                this.POINTS_PER_COMPLETION = 10;
+                // Factor de puntos extra por racha.
+                this.STREAK_BONUS_POINTS_FACTOR = 2;
+                
+                // Datos de niveles: umbral de puntos para alcanzar cada nivel.
+                this.levelsData = [
+                    { threshold: 0, name: "Aprendiz" },
+                    { threshold: 100, name: "Forjador" },
+                    { threshold: 300, name: "Constructor" },
+                    { threshold: 600, name: "Maestro" },
+                    { threshold: 1000, name: "Leyenda" }
+                ];
+                
+                // Datos de insignias: condiciones para ganar cada insignia.
+                this.badgesData = [
+                    { id: "first_habit", name: "Primer Paso", description: "Añade tu primer hábito", icon: "🌱", condition: (h, s) => h.length > 0 && !s.earnedBadges.includes("first_habit") },
+                    { id: "first_completion", name: "¡Comenzamos!", description: "Completa un hábito por primera vez", icon: "✅", condition: (h, s) => s.totalCompletionsHistorical > 0 && !s.earnedBadges.includes("first_completion") },
+                    { id: "streak_3", name: "En Racha", description: "Alcanza 3 días consecutivos", icon: "🔥", condition: (h, s) => h.some(habit => habit.currentStreak >= 3) && !s.earnedBadges.includes("streak_3") },
+                    { id: "points_150", name: "Acumulador", description: "Consigue 150 puntos", icon: "💰", condition: (h, s) => s.totalPoints >= 150 && !s.earnedBadges.includes("points_150") },
+                    { id: "perfect_day", name: "Día Perfecto", description: "Completa todos los hábitos en un día", icon: "💯", condition: (h, s) => {
+                        const activeHabits = h.filter(habit => !habit.isDeleted);
+                        return activeHabits.length > 0 && activeHabits.every(habit => habit.completedToday) && !s.earnedBadges.includes("perfect_day");
+                    }},
+                    { id: "streak_7", name: "Héroe", description: "Mantén 7 días consecutivos", icon: "🦸", condition: (h, s) => h.some(habit => habit.currentStreak >= 7) && !s.earnedBadges.includes("streak_7") },
+                    { id: "completions_100", name: "Consistente", description: "100 completados totales", icon: "⚡", condition: (h, s) => s.totalCompletionsHistorical >= 100 && !s.earnedBadges.includes("completions_100") },
+                    { id: "five_habits", name: "Multitask", description: "Ten 5 hábitos activos", icon: "🎯", condition: (h, s) => h.filter(habit => !h.isDeleted).length >= 5 && !s.earnedBadges.includes("five_habits") }
+                ];
+
+                // Mock images for achievements (habit images are replaced by emojis)
+                // This array is no longer strictly needed for achievement display but kept for potential future use or if a fallback is desired.
+                this.achievementImages = [
+                    "https://placehold.co/120x120/ffd166/000000?text=🏆",
+                    "https://placehold.co/120x120/06d6a0/000000?text=✨",
+                    "https://placehold.co/120x120/118ab2/ffffff?text=🌟",
+                    "https://placehold.co/120x120/ef476f/ffffff?text=🏅",
+                    "https://placehold.co/120x120/073b4c/ffffff?text=🚀"
+                ];
+
+                // List of emojis for selection
+                this.emojis = ['✨', '📚', '🏃‍♂️', '🍎', '🧘‍♀️', '💡', '💧', '😴', '💪', '🎨', '🎵', '✍️', '🥦', '🎮', '❤️', '�', '🚗', '✈️', '🏠', '🌍'];
+                
+                // Inicializa la aplicación al cargar.
+                this.init();
+            }
+            
+            // Función de inicialización
+            init() {
+                this.loadState(); // Carga el estado guardado.
+                this.resetDailyCompletions(); // Reinicia el estado de completado diario si es un nuevo día.
+                this.bindEvents(); // Asocia los eventos a los elementos del DOM.
+                this.render(); // Renderiza la interfaz de usuario.
+                this.updateProgressRing(); // Actualiza el anillo de progreso.
+                this.checkBadges(); // Comprueba si se han ganado nuevas insignias.
+            }
+            
+            // Asocia los eventos a los elementos interactivos de la interfaz.
+            bindEvents() {
+                // Evento para abrir el modal de añadir hábito desde el botón en la nav bar.
+                document.getElementById('addHabitBtnInNav').addEventListener('click', () => this.openAddHabitModal());
+
+                // Eventos para el modal de añadir hábito.
+                document.getElementById('addHabitModalCancel').addEventListener('click', () => this.closeAddHabitModal());
+                document.getElementById('addHabitModalSave').addEventListener('click', () => this.addHabitFromModal());
+                document.getElementById('addHabitModalInput').addEventListener('input', (e) => {
+                    // Habilita/deshabilita el botón de guardar según si hay texto en el input.
+                    document.getElementById('addHabitModalSave').disabled = e.target.value.trim() === '';
+                });
+                // Permite añadir un hábito pulsando Enter en el input del modal.
+                document.getElementById('addHabitModalInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !document.getElementById('addHabitModalSave').disabled) {
+                        this.addHabitFromModal();
+                    }
+                });
+
+                // Evento para seleccionar emoji en el modal
+                document.getElementById('emojiGrid').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('emoji-item')) {
+                        document.querySelectorAll('.emoji-item').forEach(item => item.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        document.getElementById('selectedEmoji').value = e.target.textContent;
+                    }
+                });
+
+                // Evento para cambiar de pestaña en la barra de navegación inferior.
+                document.querySelectorAll('.tab-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const tab = e.currentTarget.dataset.tab;
+                        this.switchTab(tab);
+                    });
+                });
+
+                // Eventos para el modal de confirmación de eliminar.
+                document.getElementById('modalCancel').addEventListener('click', () => this.hideDeleteModal());
+                document.getElementById('modalConfirm').addEventListener('click', () => {
+                    if (this.currentDeleteHabitId) {
+                        this.confirmDeleteHabit(this.currentDeleteHabitId);
+                        this.currentDeleteHabitId = null; // Limpia la ID después de la confirmación
+                    }
+                });
+            }
+
+            // Abre el modal para añadir un nuevo hábito.
+            openAddHabitModal() {
+                const input = document.getElementById('addHabitModalInput');
+                input.value = ''; // Limpia el input.
+                document.getElementById('addHabitModalSave').disabled = true; // Deshabilita el botón de guardar.
+                document.getElementById('addHabitModalOverlay').classList.add('show');
+                input.focus(); // Enfoca el input automáticamente.
+
+                // Populate emoji grid and select default
+                const emojiGrid = document.getElementById('emojiGrid');
+                emojiGrid.innerHTML = ''; // Clear previous emojis
+                this.emojis.forEach(emoji => {
+                    const emojiItem = document.createElement('div');
+                    emojiItem.classList.add('emoji-item');
+                    emojiItem.textContent = emoji;
+                    // Select the first emoji by default
+                    if (emoji === this.emojis[0]) {
+                        emojiItem.classList.add('selected');
+                    }
+                    emojiGrid.appendChild(emojiItem);
+                });
+                document.getElementById('selectedEmoji').value = this.emojis[0]; // Set default selected emoji
+            }
+
+            // Cierra el modal de añadir hábito.
+            closeAddHabitModal() {
+                document.getElementById('addHabitModalOverlay').classList.remove('show');
+            }
+
+            // Añade un nuevo hábito desde el modal.
+            addHabitFromModal() {
+                const input = document.getElementById('addHabitModalInput');
+                const name = input.value.trim();
+                const selectedEmoji = document.getElementById('selectedEmoji').value;
+
+                if (name) {
+                    const newHabit = {
+                        id: Date.now().toString(), // ID única basada en la marca de tiempo.
+                        name: name,
+                        completedToday: false, // Estado de completado para el día actual.
+                        currentStreak: 0, // Racha actual de días consecutivos.
+                        longestStreak: 0, // Racha más larga histórica.
+                        lastCompletionDate: null, // Fecha de la última vez que se completó.
+                        totalCompletions: 0, // Número total de veces que se ha completado.
+                        isDeleted: false, // Marca si el hábito ha sido eliminado (para mantener estadísticas)
+                        emoji: selectedEmoji // Guarda el emoji seleccionado
+                    };
+                    this.habits.push(newHabit); // Añade el nuevo hábito al array.
+                    this.closeAddHabitModal(); // Cierra el modal.
+                    this.showToast('Hábito añadido: ' + name + ' ' + selectedEmoji); // Muestra una notificación con el emoji.
+                    this.saveState(); // Guarda el estado.
+                    this.render(); // Vuelve a renderizar la UI.
+                    this.checkBadges(); // Comprueba si se ganó una insignia.
+                } else {
+                    this.showToast('El nombre del hábito no puede estar vacío.', true); // Muestra error.
+                }
+            }
+
+            // Alterna el estado de completado de un hábito.
+            toggleHabitCompletion(habitId, event) {
+                const habit = this.habits.find(h => h.id === habitId);
+                if (!habit || habit.isDeleted) return;
+
+                const today = this.getTodayDateString();
+                const lastCompletion = habit.lastCompletionDate;
+
+                // Si el hábito no se ha completado hoy
+                if (!habit.completedToday) {
+                    habit.completedToday = true;
+                    habit.totalCompletions++;
+                    this.userStats.totalCompletionsHistorical++;
+
+                    // Calcula la racha
+                    if (lastCompletion === today) {
+                        // Ya completado hoy, no hacer nada con la racha.
+                    } else if (lastCompletion === this.getYesterdayDateString()) {
+                        // Completado ayer, extiende la racha.
+                        habit.currentStreak++;
+                    } else {
+                        // No completado ayer, inicia una nueva racha.
+                        habit.currentStreak = 1;
+                    }
+                    habit.lastCompletionDate = today; // Actualiza la fecha de última completación.
+
+                    // Actualiza la racha más larga
+                    if (habit.currentStreak > habit.longestStreak) {
+                        habit.longestStreak = habit.currentStreak;
+                    }
+
+                    // Suma puntos
+                    let pointsEarned = this.POINTS_PER_COMPLETION;
+                    if (habit.currentStreak > 1) {
+                        pointsEarned += (habit.currentStreak - 1) * this.STREAK_BONUS_POINTS_FACTOR;
+                    }
+                    this.userStats.totalPoints += pointsEarned;
+                    this.showFloatingPoints(event.clientX, event.clientY, pointsEarned); // Muestra puntos flotantes.
+                    this.showToast(`¡Hábito completado! +${pointsEarned} puntos 🎉`);
+
+                    // Marca el día como activo
+                    this.userStats.activeDays[today] = true;
+
+                } else {
+                    // Si el hábito ya se completó hoy, lo desmarca.
+                    habit.completedToday = false;
+                    habit.totalCompletions--;
+                    this.userStats.totalCompletionsHistorical--;
+                    // Revertir la racha es complejo, por simplicidad, solo la reiniciamos si se desmarca el mismo día.
+                    // En una app real, se necesitaría un historial de completaciones por día.
+                    // Para esta implementación, si se desmarca, se asume que la racha se rompe si no hay otra completación hoy.
+                    // Si el hábito se desmarca, asumimos que la racha actual se rompe si no hay otras completaciones hoy.
+                    // Esto es una simplificación, en una app real se necesitaría un historial de completaciones.
+                    habit.currentStreak = 0; 
+                    this.userStats.totalPoints -= this.POINTS_PER_COMPLETION; // Resta solo los puntos base.
+                    if (this.userStats.totalPoints < 0) this.userStats.totalPoints = 0; // Evita puntos negativos.
+                    this.showToast('Hábito desmarcado.');
+                }
+                
+                this.saveState(); // Guarda el estado.
+                this.render(); // Vuelve a renderizar la UI.
+                this.updateProgressRing(); // Actualiza el anillo de progreso.
+                this.checkBadges(); // Comprueba si se ganó una insignia.
+            }
+
+            // Prepara el modal de confirmación para eliminar un hábito.
+            deleteHabit(habitId) {
+                this.currentDeleteHabitId = habitId; // Guarda la ID del hábito a eliminar.
+                document.getElementById('modalOverlay').classList.add('show'); // Muestra el modal de eliminar.
+            }
+
+            // Confirma y elimina el hábito después de la confirmación del modal.
+            confirmDeleteHabit(habitId) {
+                const habitIndex = this.habits.findIndex(h => h.id === habitId);
+                if (habitIndex > -1) {
+                    // Marcar como eliminado en lugar de borrar completamente para mantener estadísticas
+                    this.habits[habitIndex].isDeleted = true;
+                    this.habits[habitIndex].completedToday = false; // Asegurarse de que no esté marcado como completado hoy
+                    this.habits[habitIndex].currentStreak = 0; // Romper la racha al eliminar
+                    this.showToast('Hábito eliminado.');
+                    this.saveState();
+                    this.render();
+                    this.updateProgressRing();
+                    this.checkBadges();
+                }
+                this.hideDeleteModal(); // Oculta el modal de eliminar.
+            }
+
+            // Oculta el modal de confirmación de eliminar.
+            hideDeleteModal() {
+                document.getElementById('modalOverlay').classList.remove('show');
+            }
+
+            // Reinicia el estado de completado diario de los hábitos si el día ha cambiado.
+            resetDailyCompletions() {
+                const today = this.getTodayDateString();
+                // Obtiene la fecha del último día en que se guardó el estado.
+                const lastSavedDate = localStorage.getItem('lastSavedDate');
+
+                if (lastSavedDate !== today) {
+                    // Si el día ha cambiado, reinicia el estado de completado para todos los hábitos.
+                    this.habits.forEach(habit => {
+                        // Si el hábito no fue completado ayer, su racha se rompe.
+                        if (habit.lastCompletionDate !== this.getYesterdayDateString()) {
+                            habit.currentStreak = 0;
+                        }
+                        habit.completedToday = false; // Reinicia el estado diario.
+                    });
+                    // Reinicia los días activos si es un nuevo día
+                    this.userStats.activeDays = {};
+                    this.saveState(); // Guarda el estado actualizado.
+                    localStorage.setItem('lastSavedDate', today); // Actualiza la fecha de la última guardado.
+                }
+            }
+
+            // Actualiza y muestra todas las estadísticas del usuario.
+            updateStats() {
+                // Calcula el nivel actual del usuario.
+                let currentLevelData = this.levelsData[0];
+                let nextLevelThreshold = this.levelsData[1] ? this.levelsData[1].threshold : this.userStats.totalPoints; // If no next level, threshold is current points
+                
+                for (let i = 0; i < this.levelsData.length; i++) {
+                    if (this.userStats.totalPoints >= this.levelsData[i].threshold) {
+                        currentLevelData = this.levelsData[i];
+                        if (i + 1 < this.levelsData.length) {
+                            nextLevelThreshold = this.levelsData[i + 1].threshold;
+                        } else {
+                            nextLevelThreshold = this.userStats.totalPoints; // Max level reached
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                this.userStats.currentLevel = currentLevelData.name;
+
+                // Calculate progress for the current level
+                const pointsNeededForNextLevel = nextLevelThreshold - currentLevelData.threshold;
+                const pointsEarnedInCurrentLevel = this.userStats.totalPoints - currentLevelData.threshold;
+                let levelProgressPercentage = 0;
+                if (pointsNeededForNextLevel > 0) {
+                    levelProgressPercentage = (pointsEarnedInCurrentLevel / pointsNeededForNextLevel) * 100;
+                } else if (this.userStats.totalPoints >= currentLevelData.threshold) {
+                    levelProgressPercentage = 100; // Max level reached or threshold is 0
+                }
+                levelProgressPercentage = Math.min(100, Math.max(0, levelProgressPercentage)); // Clamp between 0 and 100
+
+                // Calcula la racha más larga del usuario entre todos los hábitos.
+                let overallLongestStreak = 0;
+                this.habits.forEach(habit => {
+                    if (habit.longestStreak > overallLongestStreak) {
+                        overallLongestStreak = habit.longestStreak;
+                    }
+                });
+                this.userStats.longestStreakOverall = overallLongestStreak;
+
+                // Cuenta los hábitos completados hoy.
+                const completedTodayCount = this.habits.filter(h => h.completedToday && !h.isDeleted).length;
+                const totalActiveHabitsCount = this.habits.filter(h => !h.isDeleted).length;
+
+                // Actualiza los elementos del DOM con las estadísticas.
+                document.getElementById('totalPoints').textContent = this.userStats.totalPoints;
+                document.getElementById('longestStreak').textContent = this.userStats.longestStreakOverall;
+                document.getElementById('completedToday').textContent = completedTodayCount;
+                document.getElementById('totalCompletions').textContent = this.userStats.totalCompletionsHistorical;
+                document.getElementById('activeDays').textContent = Object.keys(this.userStats.activeDays).length;
+                document.getElementById('currentLevel').textContent = currentLevelData.name;
+
+                // Update Home Tab Progress Section
+                document.getElementById('homeCurrentLevel').textContent = `Nivel ${currentLevelData.name}`;
+                document.getElementById('homeTotalPoints').textContent = `${this.userStats.totalPoints} puntos`;
+                document.getElementById('homeProgressBar').style.width = `${levelProgressPercentage}%`;
+                if (currentLevelData.name === "Leyenda") { // Assuming "Leyenda" is the max level
+                    document.getElementById('homeNextLevelProgress').textContent = `¡Has alcanzado el nivel máximo!`;
+                } else {
+                    document.getElementById('homeNextLevelProgress').textContent = `${pointsEarnedInCurrentLevel}/${pointsNeededForNextLevel} puntos para el siguiente nivel`;
+                }
+
+
+                // Actualiza el resumen diario en la pestaña de inicio
+                document.getElementById('todayCompletedHabits').textContent = completedTodayCount;
+                document.getElementById('todayTotalHabits').textContent = totalActiveHabitsCount;
+
+
+                // Actualiza el hábito más consistente
+                const mostConsistent = this.getMostConsistentHabit();
+                document.getElementById('mostConsistentHabit').textContent = mostConsistent ? `${mostConsistent.name} (${mostConsistent.longestStreak} días)` : 'Ninguno aún';
+            }
+
+            // Actualiza el anillo de progreso de completado diario.
+            updateProgressRing() {
+                const activeHabits = this.habits.filter(h => !h.isDeleted).length;
+                const completedHabitsToday = this.habits.filter(h => h.completedToday && !h.isDeleted).length;
+                
+                let percentage = 0;
+                if (activeHabits > 0) {
+                    percentage = (completedHabitsToday / activeHabits) * 100;
+                }
+
+                const radius = 52;
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (percentage / 100) * circumference;
+
+                const progressRingFill = document.getElementById('progressRingFill');
+                if (progressRingFill) {
+                    progressRingFill.style.strokeDasharray = `${circumference} ${circumference}`;
+                    progressRingFill.style.strokeDashoffset = offset;
+                }
+                
+                document.getElementById('completionPercentage').textContent = `${Math.round(percentage)}%`;
+            }
+
+            // Muestra un mensaje temporal en la parte superior de la pantalla.
+            showToast(message, isError = false) {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.style.backgroundColor = isError ? 'var(--ios-red)' : 'rgba(0, 0, 0, 0.85)';
+                toast.classList.add('show');
+                // Reset transform to ensure animation plays correctly from initial state
+                toast.style.transform = 'translateX(-50%) translateY(50px)'; 
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.style.transform = 'translateX(-50%) translateY(50px)'; // Reset for next animation
+                }, 3000); // El toast desaparece después de 3 segundos.
+            }
+
+            // Muestra puntos flotantes al completar un hábito.
+            showFloatingPoints(x, y, points) {
+                const pointsElement = document.createElement('div');
+                pointsElement.classList.add('floating-points');
+                pointsElement.textContent = `+${points}`;
+                pointsElement.style.left = `${x}px`;
+                pointsElement.style.top = `${y}px`;
+                document.body.appendChild(pointsElement);
+
+                pointsElement.addEventListener('animationend', () => {
+                    pointsElement.remove();
+                });
+            }
+
+            // Guarda el estado actual de la aplicación en el almacenamiento local.
+            saveState() {
+                localStorage.setItem('habits', JSON.stringify(this.habits));
+                localStorage.setItem('userStats', JSON.stringify(this.userStats));
+                localStorage.setItem('lastSavedDate', this.getTodayDateString());
+            }
+
+            // Carga el estado de la aplicación desde el almacenamiento local.
+            loadState() {
+                const storedHabits = localStorage.getItem('habits');
+                const storedStats = localStorage.getItem('userStats');
+
+                if (storedHabits) {
+                    this.habits = JSON.parse(storedHabits).map(habit => ({
+                        ...habit,
+                        emoji: habit.emoji || '✨' // Asegura que la propiedad emoji exista y tenga un valor predeterminado
+                    }));
+                }
+                if (storedStats) {
+                    this.userStats = JSON.parse(storedStats);
+                }
+            }
+
+            // Renderiza la lista de hábitos y actualiza las estadísticas.
+            render() {
+                const habitsListContainer = document.getElementById('habitsList');
+                const homeHabitsListContainer = document.getElementById('homeHabitsList'); // For home tab
+                
+                // Clear both lists
+                habitsListContainer.innerHTML = ''; 
+                homeHabitsListContainer.innerHTML = '';
+
+                const activeHabits = this.habits.filter(h => !h.isDeleted);
+
+                if (activeHabits.length === 0) {
+                    const emptyStateHtml = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📝</div>
+                            <div class="empty-title">Sin hábitos aún</div>
+                            <div class="empty-message">Añade tu primer hábito para comenzar tu transformación</div>
+                        </div>
+                    `;
+                    habitsListContainer.innerHTML = emptyStateHtml;
+                    homeHabitsListContainer.innerHTML = emptyStateHtml;
+                } else {
+                    // Render for My Habits tab (all active habits)
+                    activeHabits.forEach((habit, index) => {
+                        const habitItem = document.createElement('div');
+                        habitItem.classList.add('habit-item');
+                        if (habit.completedToday) {
+                            habitItem.classList.add('completed');
+                        }
+
+                        // Use the habit's emoji for display in "Mis Hábitos"
+                        const habitListEmojiContent = `<div class="habit-list-emoji">${habit.emoji}</div>`;
+
+                        habitItem.innerHTML = `
+                            <div class="habit-check ${habit.completedToday ? 'completed' : ''}" data-id="${habit.id}">
+                                ${habit.completedToday ? '<i class="fas fa-check"></i>' : ''}
+                            </div>
+                            ${habitListEmojiContent} <div class="habit-info">
+                                <div class="habit-name ${habit.completedToday ? 'completed' : ''}">${habit.name}</div>
+                                <div class="habit-streak">
+                                    <i class="fas fa-fire"></i>
+                                    <span>Racha: ${habit.currentStreak}</span>
+                                </div>
+                            </div>
+                            <div class="habit-actions">
+                                <button class="action-button delete-button" data-id="${habit.id}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `;
+                        habitsListContainer.appendChild(habitItem);
+
+                        // Add event listeners for My Habits tab
+                        habitItem.querySelector('.habit-check').addEventListener('click', (e) => {
+                            this.toggleHabitCompletion(habit.id, e);
+                        });
+                        habitItem.querySelector('.delete-button').addEventListener('click', () => {
+                            this.deleteHabit(habit.id);
+                        });
+                    });
+
+                    // Render for Home tab (only the 2 most recently added habits)
+                    // Sort by ID (which is a timestamp) in descending order to get the latest, then take the first 2
+                    const latestHabits = [...activeHabits].sort((a, b) => parseInt(b.id) - parseInt(a.id)).slice(0, 2);
+
+                    if (latestHabits.length === 0) { // This case should be covered by activeHabits.length check, but as a safeguard
+                        const emptyStateHtml = `
+                            <div class="empty-state">
+                                <div class="empty-icon">📝</div>
+                                <div class="empty-title">Sin hábitos recientes</div>
+                                <div class="empty-message">Añade nuevos hábitos para verlos aquí</div>
+                            </div>
+                        `;
+                        homeHabitsListContainer.innerHTML = emptyStateHtml;
+                    } else {
+                        latestHabits.forEach((habit) => {
+                            const homeHabitItem = document.createElement('div');
+                            homeHabitItem.classList.add('habit-item-with-image');
+                            
+                            // Use the habit's emoji for display
+                            const iconContent = `<div class="habit-emoji-display">${habit.emoji}</div>`;
+
+                            homeHabitItem.innerHTML = `
+                                <div class="habit-text-content">
+                                    <p class="text-base font-bold leading-tight">${habit.name}</p>
+                                    <p class="text-sm font-normal leading-normal">Racha: ${habit.currentStreak} días</p>
+                                </div>
+                                ${iconContent}
+                            `;
+                            homeHabitsListContainer.appendChild(homeHabitItem);
+                        });
+                    }
+                }
+                this.updateStats(); // Actualiza las estadísticas después de renderizar.
+                this.renderBadges(); // Renderiza las insignias.
+            }
+
+            // Cambia la pestaña activa en la interfaz.
+            switchTab(tabId) {
+                // Oculta todas las pestañas de contenido.
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                // Desactiva todos los ítems de la barra de pestañas.
+                document.querySelectorAll('.tab-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Muestra la pestaña de contenido seleccionada.
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                // Activa el ítem correspondiente en la barra de pestañas.
+                document.querySelector(`.tab-item[data-tab="${tabId}"]`).classList.add('active');
+
+                // Actualiza el título de la barra de navegación.
+                const navTitles = {
+                    home: 'Hábitos',
+                    habits: 'Mis Hábitos',
+                    progress: 'Tu Progreso',
+                    stats: 'Estadísticas'
+                };
+                document.getElementById('navTitle').textContent = navTitles[tabId];
+
+                // Asegura que el anillo de progreso se actualice si se va a la pestaña de progreso.
+                if (tabId === 'progress') {
+                    this.updateProgressRing();
+                }
+            }
+
+            // Comprueba y otorga insignias al usuario.
+            checkBadges() {
+                this.badgesData.forEach(badge => {
+                    if (badge.condition(this.habits.filter(h => !h.isDeleted), this.userStats)) {
+                        if (!this.userStats.earnedBadges.includes(badge.id)) {
+                            this.userStats.earnedBadges.push(badge.id);
+                            this.showToast(`¡Insignia ganada: ${badge.name}! ${badge.icon}`);
+                            this.saveState();
+                            this.renderBadges(); // Vuelve a renderizar las insignias.
+                        }
+                    }
+                });
+            }
+
+            // Renderiza las insignias ganadas.
+            renderBadges() {
+                const badgesContainer = document.getElementById('badgesContainer'); // For Progress tab
+                const homeBadgesContainer = document.getElementById('homeBadgesContainer'); // For Home tab
+
+                // Clear both containers
+                badgesContainer.innerHTML = ''; 
+                homeBadgesContainer.innerHTML = '';
+
+                if (this.userStats.earnedBadges.length === 0) {
+                    const emptyStateHtml = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🏆</div>
+                            <div class="empty-title">Sin logros aún</div>
+                            <div class="empty-message">Completa hábitos para desbloquear insignias</div>
+                        </div>
+                    `;
+                    badgesContainer.innerHTML = emptyStateHtml;
+                    homeBadgesContainer.innerHTML = emptyStateHtml;
+                } else {
+                    this.userStats.earnedBadges.forEach((badgeId) => { // Removed index as it's not used for image selection
+                        const badgeInfo = this.badgesData.find(b => b.id === badgeId);
+                        if (badgeInfo) {
+                            // Render for Progress tab
+                            const badgeElement = document.createElement('div');
+                            badgeElement.classList.add('badge');
+                            badgeElement.innerHTML = badgeInfo.icon;
+                            badgeElement.title = `${badgeInfo.name}: ${badgeInfo.description}`; // Tooltip
+                            badgesContainer.appendChild(badgeElement);
+
+                            // Render for Home tab (with emoji)
+                            const achievementItem = document.createElement('div');
+                            achievementItem.classList.add('achievement-item');
+                            
+                            // Use the badge's icon (emoji) for display
+                            const iconContent = `<div class="achievement-emoji-display">${badgeInfo.icon}</div>`;
+
+                            achievementItem.innerHTML = `
+                                ${iconContent}
+                                <p class="achievement-name">${badgeInfo.name}</p>
+                            `;
+                            homeBadgesContainer.appendChild(achievementItem);
+                        }
+                    });
+                }
+            }
+
+            // Obtiene el hábito con la racha más larga.
+            getMostConsistentHabit() {
+                let mostConsistent = null;
+                let maxStreak = 0;
+                this.habits.filter(h => !h.isDeleted).forEach(habit => {
+                    if (habit.longestStreak > maxStreak) {
+                        maxStreak = habit.longestStreak;
+                        mostConsistent = habit;
+                    }
+                });
+                return mostConsistent;
+            }
+
+            // Obtiene la cadena de fecha de hoy en formato ISO (YYYY-MM-DD).
+            getTodayDateString() {
+                const today = new Date();
+                return today.toISOString().split('T')[0];
+            }
+
+            // Obtiene la cadena de fecha de ayer en formato ISO (YYYY-MM-DD).
+            getYesterdayDateString() {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                return yesterday.toISOString().split('T')[0];
+            }
+        }
+
+        // Inicializa la aplicación cuando el DOM esté completamente cargado.
+        document.addEventListener('DOMContentLoaded', () => {
+            new HabitsApp();
+        });
+    </script>
+</body>
+</html>
+�
