@@ -106,8 +106,9 @@
             font-size: 24px; /* Plus icon size */
             cursor: pointer;
             transition: all 0.2s ease;
-            padding: 0;
-            height: 24px;
+            /* Aumentar el área de clic del botón */
+            padding: 12px; /* Añadido padding para un área de clic más grande */
+            height: auto; /* Permitir que la altura se ajuste con el padding */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -123,7 +124,8 @@
             flex: 1;
             overflow-y: auto;
             padding: 0 20px;
-            padding-bottom: calc(90px + var(--safe-area-bottom));
+            /* Ajustado padding-bottom para dejar espacio a la barra de pestañas */
+            padding-bottom: calc(70px + var(--safe-area-bottom)); 
         }
 
         .tab-content {
@@ -190,8 +192,8 @@
         }
 
         .habit-check {
-            width: 24px;
-            height: 24px;
+            width: 44px; /* Aumentado el tamaño para un mejor área de clic */
+            height: 44px; /* Aumentado el tamaño para un mejor área de clic */
             border-radius: 50%;
             border: 2px solid var(--ios-gray);
             margin-right: 16px;
@@ -200,6 +202,7 @@
             justify-content: center;
             transition: all 0.2s ease;
             cursor: pointer;
+            flex-shrink: 0; /* Evita que se encoja */
         }
 
         .habit-check.completed {
@@ -220,6 +223,7 @@
             background-color: var(--ios-gray-light); /* Light background */
             margin-right: 12px; /* Space between emoji and habit info */
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+            flex-shrink: 0; /* Evita que se encoja */
         }
 
         .habit-info {
@@ -256,16 +260,17 @@
         }
 
         .action-button {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
+            width: 44px; /* Aumentado el tamaño para un mejor área de clic */
+            height: 44px; /* Aumentado el tamaño para un mejor área de clic */
+            border-radius: 22px; /* Ajustado para el nuevo tamaño */
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 18px; /* Aumentado el tamaño del icono */
             transition: all 0.2s ease;
+            flex-shrink: 0; /* Evita que se encoja */
         }
 
         .delete-button {
@@ -404,6 +409,9 @@
             cursor: pointer;
             transition: all 0.2s ease;
             min-width: 60px;
+            /* Asegurar que todo el área del item sea clicable */
+            touch-action: manipulation; /* Mejorar respuesta táctil */
+            -webkit-tap-highlight-color: transparent; /* Eliminar el resaltado al tocar */
         }
 
         .tab-icon {
@@ -848,13 +856,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .achievement-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            line-height: 1.3;
-        }
-
         /* Emoji Selection in Modal */
         .emoji-selection-container {
             margin-top: 20px;
@@ -1217,8 +1218,18 @@
                 ];
 
                 // List of emojis for selection
-                this.emojis = ['✨', '📚', '🏃‍♂️', '🍎', '🧘‍♀️', '💡', '💧', '😴', '💪', '🎨', '🎵', '✍️', '🥦', '🎮', '❤️', '�', '🚗', '✈️', '🏠', '🌍'];
+                this.emojis = ['✨', '📚', '🏃‍♂️', '🍎', '🧘‍♀️', '💡', '💧', '😴', '💪', '🎨', '🎵', '✍️', '🥦', '🎮', '❤️', '', '🚗', '✈️', '🏠', '🌍'];
                 
+                // Propiedades para el control de deslizamiento (swipe)
+                this.startX = 0;
+                this.startY = 0;
+                this.currentX = 0;
+                this.currentY = 0;
+                this.thresholdX = 50; // Distancia mínima horizontal para considerar un swipe
+                this.thresholdY = 30; // Distancia máxima vertical para considerar un swipe horizontal
+                this.tabOrder = ['home', 'habits', 'progress', 'stats']; // Orden de las pestañas
+                this.mainContent = null; // Referencia al elemento main-content
+
                 // Inicializa la aplicación al cargar.
                 this.init();
             }
@@ -1227,6 +1238,7 @@
             init() {
                 this.loadState(); // Carga el estado guardado.
                 this.resetDailyCompletions(); // Reinicia el estado de completado diario si es un nuevo día.
+                this.mainContent = document.querySelector('.main-content'); // Obtiene la referencia al main-content
                 this.bindEvents(); // Asocia los eventos a los elementos del DOM.
                 this.render(); // Renderiza la interfaz de usuario.
                 this.updateProgressRing(); // Actualiza el anillo de progreso.
@@ -1277,6 +1289,101 @@
                         this.currentDeleteHabitId = null; // Limpia la ID después de la confirmación
                     }
                 });
+
+                // Eventos de deslizamiento (swipe) en el main-content
+                this.mainContent.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
+                this.mainContent.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false }); // passive: false para preventDefault
+                this.mainContent.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+            }
+
+            // Manejador de touchstart para el deslizamiento
+            handleTouchStart(e) {
+                this.startX = e.touches[0].clientX;
+                this.startY = e.touches[0].clientY;
+                this.currentX = this.startX;
+                this.currentY = this.startY;
+            }
+
+            // Manejador de touchmove para el deslizamiento
+            handleTouchMove(e) {
+                this.currentX = e.touches[0].clientX;
+                this.currentY = e.touches[0].clientY;
+
+                const deltaX = this.currentX - this.startX;
+                const deltaY = this.currentY - this.startY;
+
+                // Comprueba si el toque se originó dentro de un elemento con desplazamiento horizontal
+                let targetElement = e.target;
+                let isInsideHorizontalScrollable = false;
+                while (targetElement && targetElement !== this.mainContent) {
+                    const computedStyle = window.getComputedStyle(targetElement);
+                    if (computedStyle.overflowX === 'auto' || computedStyle.overflowX === 'scroll') {
+                        isInsideHorizontalScrollable = true;
+                        break;
+                    }
+                    targetElement = targetElement.parentElement;
+                }
+
+                // Si está dentro de un elemento desplazable horizontalmente y el movimiento principal es horizontal,
+                // NO prevengas el comportamiento por defecto, deja que el desplazamiento nativo lo maneje.
+                if (isInsideHorizontalScrollable && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    // Permite el desplazamiento horizontal nativo
+                    return;
+                }
+
+                // De lo contrario, si el movimiento principal es horizontal y significativo, previene el desplazamiento vertical
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+                    e.preventDefault(); // Previene el desplazamiento de la página
+                }
+            }
+
+            // Manejador de touchend para el deslizamiento
+            handleTouchEnd(e) {
+                const deltaX = this.currentX - this.startX;
+                const deltaY = this.currentY - this.startY;
+
+                // Solo considerar un swipe si el movimiento horizontal es significativo y el vertical no lo es
+                if (Math.abs(deltaX) > this.thresholdX && Math.abs(deltaY) < this.thresholdY) {
+                    if (deltaX > 0) {
+                        // Deslizamiento hacia la derecha (ir a la pestaña anterior)
+                        this.switchToAdjacentTab('prev');
+                    } else {
+                        // Deslizamiento hacia la izquierda (ir a la pestaña siguiente)
+                        this.switchToAdjacentTab('next');
+                    }
+                }
+                // Reiniciar las posiciones
+                this.startX = 0;
+                this.startY = 0;
+                this.currentX = 0;
+                this.currentY = 0;
+            }
+
+            // Obtiene el índice de la pestaña activa actualmente
+            getCurrentTabIndex() {
+                const activeTabElement = document.querySelector('.tab-item.active');
+                if (activeTabElement) {
+                    const activeTabId = activeTabElement.dataset.tab;
+                    return this.tabOrder.indexOf(activeTabId);
+                }
+                return -1;
+            }
+
+            // Cambia a la pestaña adyacente (siguiente/anterior)
+            switchToAdjacentTab(direction) {
+                let currentIndex = this.getCurrentTabIndex();
+                if (currentIndex === -1) return;
+
+                let newIndex = currentIndex;
+                if (direction === 'next') {
+                    newIndex = (currentIndex + 1) % this.tabOrder.length;
+                } else if (direction === 'prev') {
+                    newIndex = (currentIndex - 1 + this.tabOrder.length) % this.tabOrder.length;
+                }
+
+                if (newIndex !== currentIndex) {
+                    this.switchTab(this.tabOrder[newIndex]);
+                }
             }
 
             // Abre el modal para añadir un nuevo hábito.
@@ -1822,4 +1929,3 @@
     </script>
 </body>
 </html>
-�
