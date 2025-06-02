@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Hábitos</title>
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link
       rel="stylesheet"
       as="style"
@@ -1324,14 +1325,17 @@
                     targetElement = targetElement.parentElement;
                 }
 
-                // Si está dentro de un elemento desplazable horizontalmente y el movimiento principal es horizontal,
-                // NO prevengas el comportamiento por defecto, deja que el desplazamiento nativo lo maneje.
+                // Si el toque está dentro de un elemento desplazable horizontalmente
+                // y el movimiento horizontal es mayor que el vertical,
+                // no prevengas el comportamiento por defecto.
+                // Esto permite que el carrusel se desplace horizontalmente de forma nativa.
                 if (isInsideHorizontalScrollable && Math.abs(deltaX) > Math.abs(deltaY)) {
-                    // Permite el desplazamiento horizontal nativo
-                    return;
+                    return; // Permite el desplazamiento horizontal nativo
                 }
 
-                // De lo contrario, si el movimiento principal es horizontal y significativo, previene el desplazamiento vertical
+                // Si no está dentro de un elemento desplazable horizontalmente,
+                // y el movimiento principal es horizontal y significativo,
+                // entonces previene el desplazamiento vertical para permitir el swipe de pestañas.
                 if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
                     e.preventDefault(); // Previene el desplazamiento de la página
                 }
@@ -1343,7 +1347,19 @@
                 const deltaY = this.currentY - this.startY;
 
                 // Solo considerar un swipe si el movimiento horizontal es significativo y el vertical no lo es
-                if (Math.abs(deltaX) > this.thresholdX && Math.abs(deltaY) < this.thresholdY) {
+                // Y si el swipe no se inició dentro de un elemento de desplazamiento horizontal (ya manejado en touchmove)
+                let targetElement = e.target;
+                let isInsideHorizontalScrollable = false;
+                while (targetElement && targetElement !== this.mainContent) {
+                    const computedStyle = window.getComputedStyle(targetElement);
+                    if (computedStyle.overflowX === 'auto' || computedStyle.overflowX === 'scroll') {
+                        isInsideHorizontalScrollable = true;
+                        break;
+                    }
+                    targetElement = targetElement.parentElement;
+                }
+
+                if (!isInsideHorizontalScrollable && Math.abs(deltaX) > this.thresholdX && Math.abs(deltaY) < this.thresholdY) {
                     if (deltaX > 0) {
                         // Deslizamiento hacia la derecha (ir a la pestaña anterior)
                         this.switchToAdjacentTab('prev');
